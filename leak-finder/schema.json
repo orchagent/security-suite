@@ -1,0 +1,58 @@
+{
+  "input": {
+    "type": "object",
+    "properties": {
+      "repo_url": {
+        "type": "string",
+        "description": "GitHub repository URL to scan (for server-side execution with 'call')"
+      },
+      "path": {
+        "type": "string",
+        "description": "Local directory path to scan (for local execution with 'run')"
+      },
+      "branch": {
+        "type": "string",
+        "description": "Git branch to scan (default: default branch)"
+      },
+      "deep_scan": {
+        "type": "boolean",
+        "description": "Scan git history for secrets (slower but more thorough)"
+      },
+      "rotated_keys": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of rotated keys to mark as safe"
+      },
+      "exclude": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of directory names to skip during scanning"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "mode": {
+        "type": "string",
+        "description": "Scan mode: 'quick' or 'deep'"
+      },
+      "findings": {
+        "type": "array",
+        "description": "List of secrets found in current files"
+      },
+      "history_findings": {
+        "type": "array",
+        "description": "List of secrets found in git history (deep scan only)"
+      },
+      "summary": {
+        "type": "string",
+        "description": "Human-readable summary of scan results"
+      },
+      "stats": {
+        "type": "object",
+        "description": "Statistics about findings (totals and critical counts)"
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "name": "security-agent",
+  "type": "agent",
+  "description": "Comprehensive security audit. Scans for secrets, vulnerable dependencies, and dangerous code patterns, then reads your code to trace data flows, assess exploitability, and suggest fixes.",
+  "supported_providers": ["anthropic", "openai", "gemini"],
+  "max_turns": 50,
+  "timeout_seconds": 600,
+  "manifest": {
+    "dependencies": [
+      {"id": "orchagent/leak-finder", "version": "v1"},
+      {"id": "orchagent/dep-scanner", "version": "v1"}
+    ]
+  },
+  "custom_tools": [
+    {
+      "name": "scan_secrets",
+      "description": "Scan for exposed secrets, API keys, tokens, and credentials using regex patterns for 23+ secret types. Returns findings with file paths, line numbers, severity, and recommendations.",
+      "command": "python3 /home/user/helpers/orch_call.py orchagent/leak-finder@v1",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Directory to scan"
+          },
+          "deep_scan": {
+            "type": "boolean",
+            "description": "Also scan git history for removed secrets"
+          }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "scan_dependencies",
+      "description": "Audit package dependencies for known CVEs. Auto-detects npm, pip, cargo, maven, bundler, composer. Returns vulnerabilities with CVE IDs, severity, and fix versions.",
+      "command": "python3 /home/user/helpers/orch_call.py orchagent/dep-scanner@v1",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Project root to scan"
+          },
+          "severity_threshold": {
+            "type": "string",
+            "description": "Minimum severity to report: low, medium, high, critical"
+          }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "grep_pattern",
+      "description": "Search for a regex pattern across source files. Use for finding dangerous code patterns like SQL injection, command injection, XSS, hardcoded secrets, etc.",
+      "command": "grep -rn --include='*.py' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.jsx' --include='*.go' --include='*.java' --include='*.rb' --include='*.php' '{{pattern}}' {{path}} | head -100",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Regex pattern to search for"
+          },
+          "path": {
+            "type": "string",
+            "description": "Directory to search"
+          }
+        },
+        "required": ["pattern", "path"]
+      }
+    },
+    {
+      "name": "find_source_files",
+      "description": "List all source code files in a directory, grouped by language. Excludes node_modules, .git, build artifacts.",
+      "command": "find {{path}} -type f \\( -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.tsx' -o -name '*.jsx' -o -name '*.go' -o -name '*.java' -o -name '*.rb' -o -name '*.php' \\) -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' -not -path '*/build/*' -not -path '*/__pycache__/*' -not -path '*/.next/*' -not -path '*/venv/*' | sort",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Root directory to search"
+          }
+        },
+        "required": ["path"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "leak-finder",
+  "type": "tool",
+  "description": "Inspired by @burakeregar (https://x.com/burakeregar/status/2013615136502616225). Scans repositories for exposed secrets and credentials. Detects 23+ secret types including AWS keys, Stripe tokens, GitHub PATs, private keys, and database URIs.",
+  "supported_providers": ["any"],
+  "tags": ["security", "secrets", "scanning", "devops"],
+  "entrypoint": "sandbox_main.py",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "repo_url": {
+        "type": "string",
+        "description": "URL of the git repository to scan (use this OR path)"
+      },
+      "path": {
+        "type": "string",
+        "description": "Local directory path to scan (use this OR repo_url)"
+      },
+      "branch": {
+        "type": "string",
+        "description": "Branch to scan (defaults to default branch)"
+      },
+      "deep_scan": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether to scan git history for secrets"
+      },
+      "rotated_keys": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of key prefixes that have been rotated (will be marked as info severity)"
+      },
+      "exclude": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of directory names to skip during scanning (in addition to built-in exclusions)"
+      }
+    }
+  }
+}

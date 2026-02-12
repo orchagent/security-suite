@@ -1,0 +1,130 @@
+{
+  "input": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "Path to the codebase to audit (default: /home/user)",
+        "default": "/home/user"
+      },
+      "repo_url": {
+        "type": "string",
+        "description": "Git repository URL to clone and scan (optional, alternative to path)"
+      },
+      "scan_mode": {
+        "type": "string",
+        "description": "What to scan: full (everything), secrets (only secrets), deps (only dependencies), code (only code patterns)",
+        "enum": ["full", "secrets", "deps", "code"],
+        "default": "full"
+      },
+      "severity_threshold": {
+        "type": "string",
+        "description": "Minimum severity level to include in findings",
+        "enum": ["low", "medium", "high", "critical"],
+        "default": "medium"
+      },
+      "deep_scan": {
+        "type": "boolean",
+        "description": "Enable deep scanning (e.g., scan git history for removed secrets)",
+        "default": false
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "executive_summary": {
+        "type": "string",
+        "description": "2-3 sentence overview of the security posture"
+      },
+      "risk_level": {
+        "type": "string",
+        "description": "Overall risk rating",
+        "enum": ["critical", "high", "medium", "low"]
+      },
+      "findings": {
+        "type": "array",
+        "description": "Individual security findings",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique finding identifier (e.g., SEC-001)"
+            },
+            "title": {
+              "type": "string",
+              "description": "Short title of the finding"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["critical", "high", "medium", "low"]
+            },
+            "category": {
+              "type": "string",
+              "description": "Category: secrets, dependencies, injection, xss, auth, crypto, data_exposure, configuration"
+            },
+            "location": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "description": "File path"
+                },
+                "line": {
+                  "type": "integer",
+                  "description": "Line number (if applicable)"
+                }
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "Detailed description of the vulnerability"
+            },
+            "exploitability": {
+              "type": "string",
+              "description": "Assessment of how easily this can be exploited"
+            },
+            "fix": {
+              "type": "string",
+              "description": "Recommended remediation"
+            }
+          },
+          "required": ["id", "title", "severity", "category", "description", "fix"]
+        }
+      },
+      "scan_stats": {
+        "type": "object",
+        "properties": {
+          "files_scanned": {
+            "type": "integer",
+            "description": "Number of files examined"
+          },
+          "languages_detected": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Programming languages found"
+          },
+          "scanners_run": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Which scanners were executed"
+          },
+          "total_findings": {
+            "type": "integer"
+          },
+          "findings_by_severity": {
+            "type": "object",
+            "properties": {
+              "critical": {"type": "integer"},
+              "high": {"type": "integer"},
+              "medium": {"type": "integer"},
+              "low": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "required": ["executive_summary", "risk_level", "findings", "scan_stats"]
+  }
+}

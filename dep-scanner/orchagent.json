@@ -1,0 +1,42 @@
+{
+  "name": "dep-scanner",
+  "type": "tool",
+  "description": "Inspired by @burakeregar (https://x.com/burakeregar/status/2014696329549648137). Scans project dependencies for known vulnerabilities (CVEs). Runs npm audit, pip-audit, and similar tools to identify outdated or insecure packages.",
+  "supported_providers": [
+    "any"
+  ],
+  "tags": [
+    "security",
+    "dependencies",
+    "cve",
+    "scanning",
+    "devops"
+  ],
+  "default_endpoint": "scan",
+  "source_url": "git+https://github.com/jp730/agents-by-orchagent.git#subdirectory=dep-scanner",
+  "entrypoint": "sandbox_main.py",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "repo_url": {
+        "type": "string",
+        "description": "URL of the git repository to scan (use this OR path)"
+      },
+      "path": {
+        "type": "string",
+        "description": "Local directory path to scan (use this OR repo_url)"
+      },
+      "package_managers": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "Package managers to scan (auto-detected if not specified)"
+      },
+      "severity_threshold": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "critical"],
+        "default": "low",
+        "description": "Minimum severity to include in results"
+      }
+    }
+  }
+}
